@@ -1,5 +1,6 @@
-import requests
 import sys
+
+import requests
 
 SERVER_URL = "http://localhost:8080"
 
