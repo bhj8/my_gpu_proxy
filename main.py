@@ -93,6 +93,8 @@ async def catch_all(path: str):
     return JSONResponse(content={"error": "Not Found"}, status_code=404)
 
 if __name__ == "__main__":
-    app.run("main:app", host="0.0.0.0", port=80, log_level="info")
+    import uvicorn
+
+    uvicorn.run("main:app", host="0.0.0.0", port=80, log_level="info")
 
 
