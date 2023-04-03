@@ -1,9 +1,10 @@
+from ipaddress import ip_address
 import random
 import string
 from typing import Optional
 
 import requests
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse,RedirectResponse
 from fastapi.middleware import Middleware
 from pydantic import BaseModel
@@ -12,15 +13,15 @@ app = FastAPI()
 
 BASE_URL = "https://pfkuptcothrf8n-3000.proxy.runpod.net/"
 
-# class HTTPSRedirectMiddleware:
-#     async def __call__(self, request: Request, call_next):
-#         if request.url.scheme != "https":
-#             https_url = request.url.replace(scheme="https", port=443)
-#             return RedirectResponse(https_url, status_code=301)
-#         response = await call_next(request)
-#         return response
+def check_ip(request: Request):
+    allowed_ips = ["127.0.0.1"]  # 将这里的IP地址更改为您允许访问的IP地址
+    client_ip = ip_address(request.client.host)
 
-# app = FastAPI(middleware=[Middleware(HTTPSRedirectMiddleware)])
+    for allowed_ip in allowed_ips:
+        if client_ip == ip_address(allowed_ip):
+            return True
+
+    raise HTTPException(status_code=403, detail="访问被拒绝")
 
 def generate_random_string(length=10):
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
@@ -51,7 +52,7 @@ class AddUserResponse(BaseModel):
     user_id: str
     url: str
 
-@app.post("/add_user", response_model=AddUserResponse)
+@app.post("/add_user", response_model=AddUserResponse, dependencies=[Depends(check_ip)])
 async def add_user(request: AddUserRequest):
     target_url = request.url
     if not target_url:
@@ -63,7 +64,7 @@ async def add_user(request: AddUserRequest):
 
     return {"user_id": user_id, "url": target_url}
 
-@app.post("/remove_user/{user_id}")
+@app.post("/remove_user/{user_id}", dependencies=[Depends(check_ip)])
 async def remove_user(user_id: str):
     for route in app.routes:
         if f"/{user_id}/" in route.path:
@@ -73,7 +74,7 @@ async def remove_user(user_id: str):
         raise HTTPException(status_code=404, detail=f"User {user_id} not found.")
     return f"User {user_id} removed."
 
-@app.get("/list_users")
+@app.get("/list_users", dependencies=[Depends(check_ip)])
 async def list_users():
     users = []
     for route in app.routes:
