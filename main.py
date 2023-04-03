@@ -1,27 +1,29 @@
-from ipaddress import ip_address
+import os
 import random
 import string
+from ipaddress import ip_address
 from typing import Optional
 
+import dotenv
 import requests
 from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse,RedirectResponse
 from fastapi.middleware import Middleware
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
 
+allow_ip = os.getenv("ALLOW_IP")
 app = FastAPI()
 
-BASE_URL = "https://pfkuptcothrf8n-3000.proxy.runpod.net/"
 
 def check_ip(request: Request):
-    allowed_ips = ["127.0.0.1"]  # 将这里的IP地址更改为您允许访问的IP地址
+    allowed_ips = [allow_ip]  # 将这里的IP地址更改为您允许访问的IP地址
     client_ip = ip_address(request.client.host)
 
     for allowed_ip in allowed_ips:
         if client_ip == ip_address(allowed_ip):
             return True
 
-    raise HTTPException(status_code=403, detail="访问被拒绝")
+    raise HTTPException(status_code=403, detail="试啥呢试？这点B东西我能想不到？")
 
 def generate_random_string(length=10):
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
@@ -59,7 +61,7 @@ async def add_user(request: AddUserRequest):
         raise HTTPException(status_code=400, detail="No URL provided")
 
     user_id = generate_random_string()
-    app.add_api_route(f"/{user_id}/{{path:path}}", lambda path: proxy_user(user_id, path),
+    app.add_api_route(f"/{user_id}/{{path:path}}", lambda path: proxy_user(user_id, path,target_url),
                       methods=["GET", "POST", "PUT", "DELETE"])
 
     return {"user_id": user_id, "url": target_url}
@@ -84,8 +86,7 @@ async def list_users():
     return {"users": users}
 
 
-async def proxy_user(user_id: str, path: str):
-    target_url = BASE_URL
+async def proxy_user(user_id: str, path: str,target_url: str):
     request = Request(scope={}, receive=None)
     return await handle_proxy_request(request, path, target_url)
 
