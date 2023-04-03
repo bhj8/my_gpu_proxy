@@ -4,12 +4,21 @@ from typing import Optional
 
 import requests
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse,RedirectResponse
+from fastapi.middleware import Middleware
 from pydantic import BaseModel
 
-app = FastAPI()
-
 BASE_URL = "https://pfkuptcothrf8n-3000.proxy.runpod.net/"
+
+class HTTPSRedirectMiddleware:
+    async def __call__(self, request: Request, call_next):
+        if request.url.scheme != "https":
+            https_url = request.url.replace(scheme="https", port=443)
+            return RedirectResponse(https_url, status_code=301)
+        response = await call_next(request)
+        return response
+
+app = FastAPI(middleware=[Middleware(HTTPSRedirectMiddleware)])
 
 def generate_random_string(length=10):
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
