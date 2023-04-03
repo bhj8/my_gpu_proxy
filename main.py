@@ -11,7 +11,9 @@ from fastapi.middleware import Middleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
 
+dotenv.load_dotenv()  # 读取.env文件中的环境变量
 allow_ip = os.getenv("ALLOW_IP")
+print(f"Allowed IP: {allow_ip}")  # 输出获取到的环境变量值
 app = FastAPI()
 
 
@@ -97,6 +99,6 @@ async def catch_all(path: str):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=80, log_level="info")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, log_level="info")
 
 
