@@ -16,7 +16,7 @@ app = FastAPI()
 
 
 def check_ip(request: Request):
-    allowed_ips = [allow_ip]  # 将这里的IP地址更改为您允许访问的IP地址
+    allowed_ips = [str(allow_ip)]  # 将这里的IP地址更改为您允许访问的IP地址
     client_ip = ip_address(request.client.host)
 
     for allowed_ip in allowed_ips:
