@@ -63,8 +63,12 @@ async def add_user(request: AddUserRequest):
         raise HTTPException(status_code=400, detail="No URL provided")
 
     user_id = generate_random_string()
-    app.add_api_route(f"/{user_id}/{{path:path}}", lambda path="": proxy_user(user_id, path, target_url),
-                    methods=["GET", "POST", "PUT", "DELETE"])
+    app.add_api_route(
+        f"/{user_id}/{{path:path}}",
+        lambda path="": proxy_user(user_id=user_id, path=path, target_url=target_url),
+        methods=["GET", "POST", "PUT", "DELETE"],
+)
+
 
 
     return {"user_id": user_id, "url": target_url}
