@@ -63,8 +63,9 @@ async def add_user(request: AddUserRequest):
         raise HTTPException(status_code=400, detail="No URL provided")
 
     user_id = generate_random_string()
-    app.add_api_route(f"/{user_id}/{{path:path}}", lambda path: proxy_user(user_id, path,target_url),
-                      methods=["GET", "POST", "PUT", "DELETE"])
+    app.add_api_route(f"/{user_id}/{{path:path}}", lambda path="": proxy_user(user_id, path, target_url),
+                    methods=["GET", "POST", "PUT", "DELETE"])
+
 
     return {"user_id": user_id, "url": target_url}
 
@@ -88,9 +89,10 @@ async def list_users():
     return {"users": users}
 
 
-async def proxy_user(user_id: str, path: str,target_url: str):
+async def proxy_user(user_id: str, path: str = "", target_url: str = ""):
     request = Request(scope={}, receive=None)
     return await handle_proxy_request(request, path, target_url)
+
 
 @app.get("/{path:path}")
 async def catch_all(path: str):
