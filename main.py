@@ -11,6 +11,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware import Middleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
+from fastapi.routing import APIRoute
 
 dotenv.load_dotenv()  # 读取.env文件中的环境变量
 allow_ip = os.getenv("ALLOW_IP")
@@ -71,12 +72,18 @@ async def add_user(request: AddUserRequest):
         raise HTTPException(status_code=400, detail="No URL provided")
 
     user_id = generate_random_string()
-    app.add_api_route(
-        f"/{user_id}/{{path:path}}",
-        functools.partial(user_route, user_id=user_id, target_url=target_url),
+
+    async def user_route(request: Request, path: str = "", user_id: str = user_id, target_url: str = target_url):
+        return await handle_proxy_request(request, path, target_url)
+
+    route = APIRoute(
+        path=f"/{user_id}/{{path:path}}",
+        endpoint=user_route,
         methods=["GET", "POST", "PUT", "DELETE"],
         dependencies=[Depends(check_ip)],
     )
+
+    app.routes.append(route)
     return {"user_id": user_id, "url": target_url}
 
 
