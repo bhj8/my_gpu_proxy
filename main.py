@@ -71,11 +71,11 @@ async def add_user(request: AddUserRequest):
 
     user_id = generate_random_string()
 
-    async def user_route(request: Request, path: str = "", user_id: str = user_id, target_url: str = target_url):
-        return await handle_proxy_request(request, path, target_url)
+    async def user_route(request: Request, user_id: str = user_id, target_url: str = target_url):
+        return await handle_proxy_request(request, "", target_url)
 
     route = APIRoute(
-        path=f"/{user_id}",#/{{path:path}}/
+        path=f"/{user_id}",
         endpoint=user_route,
         methods=["GET", "POST", "PUT", "DELETE"],
         # dependencies=[Depends(check_ip)],
