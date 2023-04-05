@@ -10,8 +10,8 @@ import requests
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware import Middleware
 from fastapi.responses import JSONResponse, RedirectResponse
-from pydantic import BaseModel
 from fastapi.routing import APIRoute
+from pydantic import BaseModel
 
 dotenv.load_dotenv()  # 读取.env文件中的环境变量
 allow_ip = os.getenv("ALLOW_IP")
@@ -62,8 +62,6 @@ class AddUserResponse(BaseModel):
     user_id: str
     url: str
 
-async def user_route(request: Request, path: str = "", user_id: str = "", target_url: str = ""):
-    return await handle_proxy_request(request, path, target_url)
 
 @app.post("/add_user", response_model=AddUserResponse, dependencies=[Depends(check_ip)])
 async def add_user(request: AddUserRequest):
