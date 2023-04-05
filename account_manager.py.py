@@ -2,7 +2,7 @@ import sys
 
 import requests
 
-SERVER_URL = "http://108.160.142.100:80"
+SERVER_URL = "http://108.160.142.100"
 
 def add_user(url):
     response = requests.post(f"{SERVER_URL}/add_user", json={"url": url})

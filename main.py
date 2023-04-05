@@ -1,3 +1,4 @@
+import functools
 import os
 import random
 import string
@@ -64,15 +65,17 @@ async def add_user(request: AddUserRequest):
         raise HTTPException(status_code=400, detail="No URL provided")
 
     user_id = generate_random_string()
+    async def user_route(path: str = "", request: Request = Depends(), user_id: str = "", target_url: str = ""):
+        return await handle_proxy_request(request, path, target_url)
+
     app.add_api_route(
         f"/{user_id}/{{path:path}}",
-        lambda path="": proxy_user(user_id=user_id, path=path, target_url=target_url),
+        functools.partial(user_route, user_id=user_id, target_url=target_url),
         methods=["GET", "POST", "PUT", "DELETE"],
-)
-
-
-
+        dependencies=[Depends(check_ip)],
+    )
     return {"user_id": user_id, "url": target_url}
+
 
 @app.post("/remove_user/{user_id}", dependencies=[Depends(check_ip)])
 async def remove_user(user_id: str):
@@ -93,10 +96,6 @@ async def list_users():
             users.append(user_id)
     return {"users": users}
 
-
-async def proxy_user(user_id: str, path: str = "", target_url: str = ""):
-    request = Request(scope={}, receive=None)
-    return await handle_proxy_request(request, path, target_url)
 
 
 @app.get("/{path:path}")
