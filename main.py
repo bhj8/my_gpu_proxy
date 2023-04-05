@@ -75,7 +75,7 @@ async def add_user(request: AddUserRequest):
         return await handle_proxy_request(request, path, target_url)
 
     route = APIRoute(
-        path=f"/{user_id}/{{path:path}}/",
+        path=f"/{user_id}",#/{{path:path}}/
         endpoint=user_route,
         methods=["GET", "POST", "PUT", "DELETE"],
         # dependencies=[Depends(check_ip)],
