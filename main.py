@@ -78,7 +78,7 @@ async def add_user(request: AddUserRequest):
         path=f"/{user_id}/{{path:path}}/",
         endpoint=user_route,
         methods=["GET", "POST", "PUT", "DELETE"],
-        dependencies=[Depends(check_ip)],
+        # dependencies=[Depends(check_ip)],
     )
 
     app.routes.append(route)
