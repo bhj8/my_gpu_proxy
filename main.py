@@ -108,9 +108,9 @@ async def list_users():
 
 
 
-@app.get("/{path:path}")
-async def catch_all(path: str):
-    return JSONResponse(content={"error": "Not Found"}, status_code=404)
+# @app.get("/{path:path}")
+# async def catch_all(path: str):
+#     return JSONResponse(content={"error": "Not Found"}, status_code=404)
 
 if __name__ == "__main__":
     import uvicorn
