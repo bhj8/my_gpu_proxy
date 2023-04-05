@@ -91,9 +91,10 @@ async def remove_user(user_id: str):
 async def list_users():
     users = []
     for route in app.routes:
-        user_id = route.path.split("/", 2)[1]
-        if user_id not in users:
-            users.append(user_id)
+        users.append(route.path)
+        # user_id = route.path.split("/", 2)[1]
+        # if user_id not in users:
+        #     users.append(user_id)
     return {"users": users}
 
 
