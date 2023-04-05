@@ -15,6 +15,7 @@ dotenv.load_dotenv()  # 读取.env文件中的环境变量
 allow_ip = os.getenv("ALLOW_IP")
 print(f"Allowed IP: {allow_ip}")  # 输出获取到的环境变量值
 app = FastAPI()
+app = FastAPI(openapi_url=None, redoc_url=None)
 
 
 def check_ip(request: Request):
