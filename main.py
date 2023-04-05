@@ -51,7 +51,8 @@ async def handle_proxy_request(request: Request, path: str, target_url: str):
 
     excluded_headers = ["content-encoding", "content-length", "transfer-encoding", "connection"]
     response_headers = {name: value for (name, value) in resp.headers.items() if name.lower() not in excluded_headers}
-    response = JSONResponse(content=resp.content, status_code=resp.status_code, headers=response_headers)
+    response = JSONResponse(content=resp.text, status_code=resp.status_code, headers=response_headers)
+
     return response
 
 
