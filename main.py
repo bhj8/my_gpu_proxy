@@ -32,24 +32,27 @@ def check_ip(request: Request):
 def generate_random_string(length=10):
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
-def handle_proxy_request(request: Request, path: str, target_url: str):
+async def handle_proxy_request(request: Request, path: str, target_url: str):
     full_url = f"{target_url}{path}"
     method = request.method
+    headers = dict(request.headers)
+
     if method == "GET":
-        resp = requests.get(full_url, params=request.query_params)
+        resp = requests.get(full_url, params=request.query_params, headers=headers)
     elif method == "POST":
-        resp = requests.post(full_url, json=request.json())
+        resp = requests.post(full_url, json=await request.json(), headers=headers)
     elif method == "PUT":
-        resp = requests.put(full_url, json=request.json())
+        resp = requests.put(full_url, json=await request.json(), headers=headers)
     elif method == "DELETE":
-        resp = requests.delete(full_url)
+        resp = requests.delete(full_url, headers=headers)
     else:
         return JSONResponse(content="Unsupported method", status_code=405)
 
     excluded_headers = ["content-encoding", "content-length", "transfer-encoding", "connection"]
-    headers = {name: value for (name, value) in resp.headers.items() if name.lower() not in excluded_headers}
-    response = JSONResponse(content=resp.content, status_code=resp.status_code, headers=headers)
+    response_headers = {name: value for (name, value) in resp.headers.items() if name.lower() not in excluded_headers}
+    response = JSONResponse(content=resp.content, status_code=resp.status_code, headers=response_headers)
     return response
+
 
 class AddUserRequest(BaseModel):
     url: str
