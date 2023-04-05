@@ -58,6 +58,9 @@ class AddUserResponse(BaseModel):
     user_id: str
     url: str
 
+async def user_route(request: Request, path: str = "", user_id: str = "", target_url: str = ""):
+    return await handle_proxy_request(request, path, target_url)
+
 @app.post("/add_user", response_model=AddUserResponse, dependencies=[Depends(check_ip)])
 async def add_user(request: AddUserRequest):
     target_url = request.url
@@ -65,9 +68,6 @@ async def add_user(request: AddUserRequest):
         raise HTTPException(status_code=400, detail="No URL provided")
 
     user_id = generate_random_string()
-    async def user_route(path: str = "", request: Request = Depends(), user_id: str = "", target_url: str = ""):
-        return await handle_proxy_request(request, path, target_url)
-
     app.add_api_route(
         f"/{user_id}/{{path:path}}",
         functools.partial(user_route, user_id=user_id, target_url=target_url),
